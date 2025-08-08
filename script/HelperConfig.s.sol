@@ -16,10 +16,10 @@ abstract contract CodeConstants {
     uint256 public constant LOCAL_CHAIN_ID = 31337;
 }
 
-contract HelperConfig is CodeConstants, Script{
+contract HelperConfig is CodeConstants, Script {
     error HelperConfig__InvalidChainId();
 
-    struct NetworkConfig{
+    struct NetworkConfig {
         uint256 entranceFee;
         uint256 interval;
         address vrfCoordinator;
@@ -29,55 +29,59 @@ contract HelperConfig is CodeConstants, Script{
     }
     NetworkConfig public localNetworkConfig;
     mapping(uint256 => NetworkConfig) public networkConfig;
-    
-    constructor(){
+
+    constructor() {
         networkConfig[ETH_SEPOLIA_CHAIN_ID] = getSepoliaEthConfig();
     }
 
-    function getConfigByCHainId(uint256 chainId) public returns(NetworkConfig memory){
-        if(networkConfig[chainId].vrfCoordinator != address(0)){
+    function getConfigByCHainId(
+        uint256 chainId
+    ) public returns (NetworkConfig memory) {
+        if (networkConfig[chainId].vrfCoordinator != address(0)) {
             return networkConfig[chainId];
-        }else if(chainId == LOCAL_CHAIN_ID){
+        } else if (chainId == LOCAL_CHAIN_ID) {
             return getOrCreateAnvilEthConfig();
-        }else{
+        } else {
             revert HelperConfig__InvalidChainId();
         }
     }
 
-    function getConfig() public returns(NetworkConfig memory){
+    function getConfig() public returns (NetworkConfig memory) {
         return getConfigByCHainId(block.chainid);
     }
 
-    function getSepoliaEthConfig() public pure returns(NetworkConfig memory){
-       return NetworkConfig({
-            entranceFee: 0.01 ether,
-            interval: 30,
-            vrfCoordinator: 0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e,
-            gasLane: 0xe9f223d7d83ec85c4f78042a4845af3a1c8df7757b4997b815ce4b8d07aca68c,
-            subscriptionId: 0,
-            callbackGasLimit: 500000
-        });    
+    function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
+        return
+            NetworkConfig({
+                entranceFee: 0.01 ether,
+                interval: 30,
+                vrfCoordinator: 0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e,
+                gasLane: 0xe9f223d7d83ec85c4f78042a4845af3a1c8df7757b4997b815ce4b8d07aca68c,
+                subscriptionId: 0,
+                callbackGasLimit: 500000
+            });
     }
 
-    function getOrCreateAnvilEthConfig() public returns(NetworkConfig memory){
-        if(localNetworkConfig.vrfCoordinator != address(0)){
+    function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
+        if (localNetworkConfig.vrfCoordinator != address(0)) {
             return localNetworkConfig;
         }
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE,
-        MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
+        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
+            uint96(MOCK_BASE_FEE), 
+            uint96(MOCK_GAS_PRICE_LINK),
+            MOCK_WEI_PER_UINT_LINK
+        );
 
         vm.stopBroadcast();
         localNetworkConfig = NetworkConfig({
             entranceFee: 0.01 ether,
             interval: 30,
             vrfCoordinator: address(vrfCoordinator),
-            vrfCoordinator: 0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e,
             gasLane: 0xe9f223d7d83ec85c4f78042a4845af3a1c8df7757b4997b815ce4b8d07aca68c,
             subscriptionId: 0,
             callbackGasLimit: 500000
         });
         return localNetworkConfig;
     }
-
 }

@@ -59,8 +59,6 @@ contract Raffle is VRFConsumerBaseV2Plus {
     address private s_recentWinner;
     RaffleState private s_raffleState;
 
-    IVRFCoordinatorV2Plus private immutable s_vrfCoordinator;
-
     /*Events*/
     // Event emitted when a player enters the raffle
     event RaffleEntered(address indexed player);
@@ -83,7 +81,6 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
         s_lastTimeStamp = block.timestamp;
         s_raffleState = RaffleState.OPEN;
-        s_vrfCoordinator = IVRFCoordinatorV2Plus(vrfCoordinator);
     }
 
     // Function to enter the raffle. Requires sending enough ETH.
@@ -169,5 +166,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
     // Returns the current entrance fee
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
+    }
+
+    function getRaffleState() external view returns (RaffleState) {
+        return s_raffleState;
+    }
+
+    function getPlayer(uint256 index) external view returns (address) {
+        return s_players[index];
     }
 }
