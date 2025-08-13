@@ -6,7 +6,7 @@ import {Raffle} from "../../src/Raffle.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
-contract RaffleTest is Test{
+contract RaffleTest is Test {
     Raffle public raffle;
     HelperConfig public helperConfig;
 
@@ -23,7 +23,7 @@ contract RaffleTest is Test{
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
 
-    function setUp() external{
+    function setUp() external {
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.deployContract();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
@@ -36,7 +36,7 @@ contract RaffleTest is Test{
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    function testRaffleInitializationInOpenState() public view{
+    function testRaffleInitializationInOpenState() public view {
         assert(raffle.getRaffleState() == Raffle.RaffleState.OPEN);
     }
 
@@ -51,7 +51,7 @@ contract RaffleTest is Test{
     function testRaffleRecordsPlayersWhenTheyEnter() public {
         //Arrange
         vm.startPrank(PLAYER);
-        //Act 
+        //Act
         raffle.enterRaffle{value: entranceFee}();
         //Assert
         address playerRecorded = raffle.getPlayer(0);
@@ -61,7 +61,7 @@ contract RaffleTest is Test{
     function testEnteringRaffleEmitsEvent() public {
         //Arrange
         vm.startPrank(PLAYER);
-        //Act 
+        //Act
         vm.expectEmit(true, false, false, false, address(raffle));
         emit RaffleEntered(PLAYER);
         //Assert
@@ -80,5 +80,4 @@ contract RaffleTest is Test{
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
     }
-
 }

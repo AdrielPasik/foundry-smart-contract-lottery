@@ -13,16 +13,16 @@ contract DeployRaffle is Script {
         vm.stopBroadcast();
     }
 
-    function deployContract() public returns(Raffle, HelperConfig){
+    function deployContract() public returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
         //local => deploy mocks
         //Seplolia => get seplolia config
 
-        if(config.subscriptionId ==0){
+        if (config.subscriptionId == 0) {
             //create subscription
             CreateSubscription createSubscription = new CreateSubscription();
-            (config.subscriptionId, config.vrfCoordinator) = 
+            (config.subscriptionId, config.vrfCoordinator) =
                 createSubscription.createSubscription(config.vrfCoordinator);
 
             FundSubscription fundSubscription = new FundSubscription();
@@ -47,5 +47,4 @@ contract DeployRaffle is Script {
 
         return (raffle, helperConfig);
     }
-
 }
