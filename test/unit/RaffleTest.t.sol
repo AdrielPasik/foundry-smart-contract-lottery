@@ -5,9 +5,9 @@ import {Test} from "forge-std/Test.sol";
 import {Raffle} from "../../src/Raffle.sol";
 import {DeployRaffle} from "../../script/DeployRaffle.s.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {CodeConstants} from "../../script/HelperConfig.s.sol"; // <-- Añade esta importación
 import {Vm} from "forge-std/Vm.sol";
 import {VRFCoordinatorV2_5Mock} from "lib/chainlink-brownie-contracts/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
-import {CodeConstants} from "../../script/HelperConfig.s.sol";
 
 contract RaffleTest is CodeConstants, Test {
     Raffle public raffle;
@@ -34,9 +34,18 @@ contract RaffleTest is CodeConstants, Test {
         interval = config.interval;
         gasLane = config.gasLane;
         callbackGasLimit = config.callbackGasLimit;
-        subscriptionId = config.subscriptionId; // <-- CAMBIA ESTO
+        subscriptionId = config.subscriptionId;
         vrfCoordinator = config.vrfCoordinator;
 
+        // Solo en la chain de desarrollo (mock)
+        if (block.chainid == 31337) {
+            // Asegúrate de que haya fondos suficientes en la suscripción
+            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(
+                subscriptionId,
+                100 ether
+            );
+        }
+        
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 

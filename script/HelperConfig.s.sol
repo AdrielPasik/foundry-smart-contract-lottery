@@ -72,21 +72,20 @@ contract HelperConfig is CodeConstants, Script {
             return localNetworkConfig;
         }
 
-        // create mocks (no vm.startBroadcast here — tests call this in-process)
+        // Crear los mocks
         VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
             uint96(MOCK_BASE_FEE),
             uint96(MOCK_GAS_PRICE_LINK),
-            MOCK_WEI_PER_UINT_LINK
+            MOCK_WEI_PER_UINT_LINK  // <-- Cambiado de MOCK_WEI_PER_UNIT_LINK a MOCK_WEI_PER_UINT_LINK
         );
         LinkToken linkToken = new LinkToken();
 
-        // create & fund subscription for the mock so requests / fulfill calls succeed
+        // Crear y fondear la suscripción para el mock
         uint256 subId = vrfCoordinator.createSubscription();
-        uint256 FUND_AMOUNT = 100 ether; // aumentado para evitar InsufficientBalance en tests con múltiples jugadores
-        // fund directly on the mock (avoids OnlyCallableFromLink checks)
-        vrfCoordinator.fundSubscription(subId, FUND_AMOUNT);
+        // Fondear directamente (IMPORTANTE - esto es lo que falta en el CI)
+        vrfCoordinator.fundSubscription(subId, 100 ether);
 
-        // populate local config
+        // Configuración local
         localNetworkConfig = NetworkConfig({
             entranceFee: 0.01 ether,
             interval: 30,
