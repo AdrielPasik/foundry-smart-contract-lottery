@@ -30,6 +30,7 @@ contract HelperConfig is CodeConstants, Script {
         uint256 subscriptionId;
         uint32 callbackGasLimit;
         address link;
+        address account;
     }
 
     NetworkConfig public localNetworkConfig;
@@ -57,11 +58,12 @@ contract HelperConfig is CodeConstants, Script {
         return NetworkConfig({
             entranceFee: 0.01 ether,
             interval: 30,
-            vrfCoordinator: 0x3C0Ca683b403E37668AE3DC4FB62F4B29B6f7a3e,
+            vrfCoordinator: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B, // <-- Checksum corregido
             gasLane: 0xe9f223d7d83ec85c4f78042a4845af3a1c8df7757b4997b815ce4b8d07aca68c,
-            subscriptionId: 0,
+            subscriptionId: 16167634609565561491100488804143546983072294655768501533415360843733013476434,
             callbackGasLimit: 500000,
-            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+            account: address(0)
         });
     }
 
@@ -70,20 +72,32 @@ contract HelperConfig is CodeConstants, Script {
             return localNetworkConfig;
         }
 
-        vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinator =
-            new VRFCoordinatorV2_5Mock(uint96(MOCK_BASE_FEE), uint96(MOCK_GAS_PRICE_LINK), MOCK_WEI_PER_UINT_LINK);
+        // create mocks (no vm.startBroadcast here — tests call this in-process)
+        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
+            uint96(MOCK_BASE_FEE),
+            uint96(MOCK_GAS_PRICE_LINK),
+            MOCK_WEI_PER_UINT_LINK
+        );
         LinkToken linkToken = new LinkToken();
-        vm.stopBroadcast();
+
+        // create & fund subscription for the mock so requests / fulfill calls succeed
+        uint256 subId = vrfCoordinator.createSubscription();
+        uint256 FUND_AMOUNT = 100 ether; // aumentado para evitar InsufficientBalance en tests con múltiples jugadores
+        // fund directly on the mock (avoids OnlyCallableFromLink checks)
+        vrfCoordinator.fundSubscription(subId, FUND_AMOUNT);
+
+        // populate local config
         localNetworkConfig = NetworkConfig({
             entranceFee: 0.01 ether,
             interval: 30,
             vrfCoordinator: address(vrfCoordinator),
             gasLane: 0xe9f223d7d83ec85c4f78042a4845af3a1c8df7757b4997b815ce4b8d07aca68c,
-            subscriptionId: 0,
+            subscriptionId: subId,
             callbackGasLimit: 500000,
-            link: address(linkToken)
+            link: address(linkToken),
+            account: address(this)
         });
+
         return localNetworkConfig;
     }
 }
