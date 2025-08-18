@@ -10,13 +10,9 @@ import {VRFCoordinatorV2_5Mock} from
 import {LinkToken} from "../test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
-    /* VRF Mock Values */
-    uint256 public MOCK_BASE_FEE = 0.25 ether;
-    uint256 public MOCK_GAS_PRICE_LINK = 1e9; // 0.
-    //LINK / ETH price
-    int256 public MOCK_WEI_PER_UINT_LINK = 4e15; // 0.004 LINK per ETH
-    // Alias para compatibilidad con código que podría usar el otro nombre
-    int256 public MOCK_WEI_PER_UNIT_LINK = 4e15;
+    uint256 public constant MOCK_BASE_FEE = 0.25 ether;
+    uint256 public constant MOCK_GAS_PRICE_LINK = 1e9;
+    int256 public constant MOCK_WEI_PER_UNIT_LINK = 4e15; // <-- Usa int256 aquí
 
     uint256 public constant ETH_SEPOLIA_CHAIN_ID = 11155111;
 }
@@ -78,7 +74,7 @@ contract HelperConfig is CodeConstants, Script {
         VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
             uint96(MOCK_BASE_FEE),
             uint96(MOCK_GAS_PRICE_LINK),
-            MOCK_WEI_PER_UNIT_LINK  // <-- Cambia a MOCK_WEI_PER_UNIT_LINK
+            MOCK_WEI_PER_UNIT_LINK // <-- int256, coincide con el constructor
         );
         LinkToken linkToken = new LinkToken();
 
