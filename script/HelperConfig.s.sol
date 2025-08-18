@@ -78,7 +78,7 @@ contract HelperConfig is CodeConstants, Script {
         VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
             uint96(MOCK_BASE_FEE),
             uint96(MOCK_GAS_PRICE_LINK),
-            MOCK_WEI_PER_UINT_LINK  // <-- Cambiado de MOCK_WEI_PER_UNIT_LINK a MOCK_WEI_PER_UINT_LINK
+            MOCK_WEI_PER_UNIT_LINK  // <-- Cambia a MOCK_WEI_PER_UNIT_LINK
         );
         LinkToken linkToken = new LinkToken();
 

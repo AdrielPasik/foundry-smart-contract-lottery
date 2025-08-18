@@ -27,6 +27,7 @@ contract RaffleTest is CodeConstants, Test {
     event WinnerPicked(address indexed winner);
 
     function setUp() external {
+        // Código existente
         DeployRaffle deployer = new DeployRaffle();
         (raffle, helperConfig) = deployer.deployContract();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
@@ -37,12 +38,11 @@ contract RaffleTest is CodeConstants, Test {
         subscriptionId = config.subscriptionId;
         vrfCoordinator = config.vrfCoordinator;
 
-        // Solo en la chain de desarrollo (mock)
-        if (block.chainid == 31337) {
-            // Asegúrate de que haya fondos suficientes en la suscripción
+        // Asegúrate de fondear la suscripción directamente para tests
+        if (block.chainid == 31337) { // Si estamos en Anvil
             VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(
-                subscriptionId,
-                100 ether
+                subscriptionId, 
+                100 ether // Monto muy alto para evitar InsufficientBalance
             );
         }
         
